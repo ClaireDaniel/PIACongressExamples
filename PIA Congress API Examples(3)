@@ -1,0 +1,434 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Insert your API key here (necessary for paid API)\n",
+    "apiKey = \"INSERT HERE\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Required packages\n",
+    "\n",
+    "#Used in Google example\n",
+    "import requests\n",
+    "import json\n",
+    "import pandas as pd\n",
+    "\n",
+    "#Extra for Open Street Map example\n",
+    "import osmnx as ox\n",
+    "%matplotlib inline\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Google Places (Proprietary API)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### This is the address:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 91,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "address = \"2690 Gold Coast Highway, Broadbeach, Australia\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### This is the code used to look up APIs:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Send address the Google geocode API to get latitude and longitude"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 92,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "-28.0278687,153.428597\n"
+     ]
+    }
+   ],
+   "source": [
+    "payload = {'address': address, 'key': apiKey} #parameters that will be inserted into the URL\n",
+    "geocodeUrl = \"https://maps.googleapis.com/maps/api/geocode/json?\" #Base URL for API\n",
+    "\n",
+    "output = requests.get(geocodeUrl, params = payload) #Get the information from the API\n",
+    "output = output.json() #Turn .json oputput into Python dictionary\n",
+    "\n",
+    "lat = output['results'][0]['geometry']['location']['lat'] #extract latitude from api request output\n",
+    "lng = output['results'][0]['geometry']['location']['lng'] #extract longitude from api request output\n",
+    "\n",
+    "print(str(lat) + \",\" + str(lng))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Send latitude and longitude to Google Places API to find restaurants in a 500m radius"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 93,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{'html_attributions': [], 'next_page_token': 'CrQCIQEAABjh0gHrkBSPa2AXfp8SrAYhW6t11dFpqsmM9PNUYj8K-1GWnAHBlVuxwQWm0mMAq-GqdaT1bu32eJWVznbazfsXYnuE2Z9n461ovgq1pyUHGQYowU9F3R33h5bqimczwUbMpkMwW3qhkUf4ex93LhcPjrPkot52ZWbVbEYPd-JeVX7GIAGiUUeGiVCZVf-1pvgp-vYbcLndpfnna7TaOBtn_ytbDEQSQ1rKTD6F1KPe87ZewEA9sSklLX4BJ1GZr9X-YpyJLMWiIXwpPVN1fIVI1XqPSfygOosRBpK5IM6yyEIA7Bme8NKqlQHrcA1pnp4M3RUL3QK5F8liCdd2EsEZsdGqtz58HlbZ-oWJ7ubIShsJ7WIbF8DV8pfb7BPG6uktRwTNPF89MHpSeseVEEYSEA2NoFUguyOOLQAoEb69a9EaFHv5K3ldEJGSp3w74YSo4KBkeCLH', 'results': [{'geometry': {'location': {'lat': -28.03217519999999, 'lng': 153.4288915}, 'viewport': {'northeast': {'lat': -28.02760804999999, 'lng': 153.43110605}, 'southwest': {'lat': -28.03664425, 'lng': 153.42657665}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/lodging-71.png', 'id': '3a23b9e473225a2468294a6988746b548bec3f76', 'name': 'The Star Gold Coast', 'opening_hours': {'open_now': True}, 'photos': [{'height': 1405, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/100627505601714284347/photos\">The Star Gold Coast</a>'], 'photo_reference': 'CmRaAAAAstLuofk2OvgoSedKVpqH5bgCk3rONYQptohLo7uF3FWa68A1pNQTwM_mceR3RhjuWo2A18972VZy-8HnychvY1DgX4D3JIO1mQGWiX_O2doN4Z_VHYAg4sKV1GxT41XdEhAZ14HnlPF3_3L2Ah_xKoZrGhRKpd4PIVflnqsGBJkvC41YTG6tCg', 'width': 2200}], 'place_id': 'ChIJp008OPsEkWsRTnGuuTQriZ0', 'plus_code': {'compound_code': 'XC9H+4H Broadbeach, Queensland, Australia', 'global_code': '5R3MXC9H+4H'}, 'price_level': 1, 'rating': 4.2, 'reference': 'ChIJp008OPsEkWsRTnGuuTQriZ0', 'scope': 'GOOGLE', 'types': ['casino', 'bar', 'lodging', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 5540, 'vicinity': '1 Casino Drive, Broadbeach'}, {'geometry': {'location': {'lat': -28.030537, 'lng': 153.4309507}, 'viewport': {'northeast': {'lat': -28.02925481970849, 'lng': 153.4320238302915}, 'southwest': {'lat': -28.0319527802915, 'lng': 153.4293258697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'abc3d88e3ce2b7d64ba4534267a2b11cce6d8aaa', 'name': 'Moo Moo The Wine Bar + Grill', 'opening_hours': {'open_now': False}, 'photos': [{'height': 3024, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/102389891581045896303/photos\">Tanja Turner</a>'], 'photo_reference': 'CmRaAAAA8OPYOa70rRjOnwdjXYgyQbWp1Rt-dNACsotzM3qOt3et1HU3f5hTQfAR0vZrGeSUCIa0xy1QIHzGNOX8N4madnyC0A7rEF8Y7hhl7eunYuOIv9I8Sb4pSxrgMeSVof3WEhCh1ah_YoAT-SQpnnehoklkGhTUKol9O8la7-6YwjiGvm5bRcpGyg', 'width': 4032}], 'place_id': 'ChIJb8Vmf_wEkWsRMteW-iqU0FU', 'plus_code': {'compound_code': 'XC9J+Q9 Broadbeach, Queensland, Australia', 'global_code': '5R3MXC9J+Q9'}, 'price_level': 4, 'rating': 4.2, 'reference': 'ChIJb8Vmf_wEkWsRMteW-iqU0FU', 'scope': 'GOOGLE', 'types': ['bar', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 437, 'vicinity': 'Broadbeach on the Park, 2685 Gold Coast Highway, Broadbeach'}, {'geometry': {'location': {'lat': -28.0282733, 'lng': 153.4309816}, 'viewport': {'northeast': {'lat': -28.0269305197085, 'lng': 153.4324338802915}, 'southwest': {'lat': -28.0296284802915, 'lng': 153.4297359197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '6b1f81e15595acd4c0b606edbd20925a537a2124', 'name': '1two3 Mediterranean Dining & Lounge Bar', 'opening_hours': {'open_now': True}, 'photos': [{'height': 4160, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/110036739428948981251/photos\">michael cooper</a>'], 'photo_reference': 'CmRaAAAAPTVrhSbNTfWg6azclgAZN0jBX39Usb-hFGDV6S13vETz9W6WwAGX0VpuTSuR6YasCQj-8IK-JEKeD5Vbk4on9JPMO9SfEuD93DKNaHHEr6_X-6_xzs0r65PhqnDB_225EhAqn3iRKjii3rqjVKi7RRG_GhRWv4r5v7t_2lJI7SUI16JnI3cHTw', 'width': 3120}], 'place_id': 'ChIJ4V68TfwEkWsR6zjJWvtCFDY', 'plus_code': {'compound_code': 'XCCJ+M9 Gold Coast, Queensland, Australia', 'global_code': '5R3MXCCJ+M9'}, 'price_level': 3, 'rating': 3.6, 'reference': 'ChIJ4V68TfwEkWsR6zjJWvtCFDY', 'scope': 'GOOGLE', 'types': ['restaurant', 'bar', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 58, 'vicinity': 'Shop 10 & 11 Phoenician Tower East Surf Pde, Broadbeach'}, {'geometry': {'location': {'lat': -28.027946, 'lng': 153.431688}, 'viewport': {'northeast': {'lat': -28.02674326970849, 'lng': 153.4330714802915}, 'southwest': {'lat': -28.0294412302915, 'lng': 153.4303735197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '586966ee798f4d12bf555063575b3cb19463dbb0', 'name': 'Ariya Thai Cuisine', 'opening_hours': {'open_now': False}, 'photos': [{'height': 1443, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/110679062189476559129/photos\">Chris Watts</a>'], 'photo_reference': 'CmRaAAAAalZVr8-jhBCmKHN-V7yq-OKTiOBhGP3W_p40jRwoCDNPg2ViOYVw2nC9YrPjQAhr1jZmDXOVEl-7XnNANt7noy072aXiLwvNE_o5-pwk1RQi9wNnyjXBh0x30K4UUHbbEhCvg6JpvCSvTM6V0oMHPTsIGhQbTshvz33GF6kooHvdTSAZ3Pb6CQ', 'width': 2048}], 'place_id': 'ChIJzSodyv0EkWsR2EJIh8MvTYQ', 'plus_code': {'compound_code': 'XCCJ+RM Gold Coast, Queensland, Australia', 'global_code': '5R3MXCCJ+RM'}, 'price_level': 2, 'rating': 2.8, 'reference': 'ChIJzSodyv0EkWsR2EJIh8MvTYQ', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 60, 'vicinity': '17B Albert Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.027967, 'lng': 153.431543}, 'viewport': {'northeast': {'lat': -28.0267669697085, 'lng': 153.4329271302915}, 'southwest': {'lat': -28.02946493029151, 'lng': 153.4302291697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'a9efbb002d3f9bba54bcdaf0c2479f99092f23bf', 'name': 'The Aztec Broadbeach', 'opening_hours': {'open_now': False}, 'photos': [{'height': 788, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/113317184512962191462/photos\">The Aztec Broadbeach</a>'], 'photo_reference': 'CmRaAAAACCHGpoLsrQs__uaIy3GbEz6e9pEvHxL7lCMLVaZoSer3fpC5r3UbwSPxMEdLdUGTtH-2uI55s_Z4bgRiOcjbUdGEqgzjavQAj_PMwNKqtSy7Du38M1HJdJHHy5xMVZuNEhB0IykpO9PbtcfhtVamw2uLGhQM5vLhREpREzDDlSUyW8EJl2crXg', 'width': 1181}], 'place_id': 'ChIJ0QVZQfwEkWsRxkDQvPaF5IY', 'plus_code': {'compound_code': 'XCCJ+RJ Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+RJ'}, 'price_level': 2, 'rating': 3.2, 'reference': 'ChIJ0QVZQfwEkWsRxkDQvPaF5IY', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 109, 'vicinity': 'The Aria Building, shop 11/17 Albert Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0288604, 'lng': 153.4314737}, 'viewport': {'northeast': {'lat': -28.0275012197085, 'lng': 153.4326598802915}, 'southwest': {'lat': -28.0301991802915, 'lng': 153.4299619197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '11a4af843746ece8845a349d1403151792ab1172', 'name': 'Rocks on Broadbeach', 'opening_hours': {'open_now': True}, 'photos': [{'height': 1960, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/115086396020538701967/photos\">Eric Moore</a>'], 'photo_reference': 'CmRaAAAAZ7_mi7iCnnVnnSw0Ty1JJA134br2zOWH30-y2etblo7yhpB34CF-cknyGX4A2UnI7yuOqXUR0nr30zwZjsLEH08lhXQGionWsy5cnQj1M5jUprFTzD0YsZjH4u9UfFCfEhDhoYD0v8WsjDJpH2a3gScbGhTMrJFNa6j0qAs5LS2qxRHRphELVQ', 'width': 4032}], 'place_id': 'ChIJIbMxwfsEkWsROKz_IRROxZ0', 'plus_code': {'compound_code': 'XCCJ+FH Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+FH'}, 'rating': 2.9, 'reference': 'ChIJIbMxwfsEkWsROKz_IRROxZ0', 'scope': 'GOOGLE', 'types': ['restaurant', 'store', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 96, 'vicinity': '110/89 Surf Parade, Broadbeach'}, {'geometry': {'location': {'lat': -28.0306626, 'lng': 153.4319644}, 'viewport': {'northeast': {'lat': -28.0292443697085, 'lng': 153.4333421802915}, 'southwest': {'lat': -28.0319423302915, 'lng': 153.4306442197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '50d594f3b2e374e93790c6b1a6a2f9a405beb9a1', 'name': 'Guzman y Gomez', 'opening_hours': {'open_now': False}, 'photos': [{'height': 1500, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/100751952192811735145/photos\">Jean</a>'], 'photo_reference': 'CmRaAAAAfJnjDSWx3kvRQj7xAy1Ac5kgFy4Cb2isGOy_ZDTuHb3EMz6d6vZNhju1PTpGRgcPXKvldmv4CV4_8Pniz646XGhP1HtEz-u2LNjDwlwsVg3WGPpEom55h-pso8dbaKiBEhCU9c6WhRGvjy6LIc5eaPcSGhRJ069_fGaUKKGoXBIuyow5JYyz9A', 'width': 2000}], 'place_id': 'ChIJawoQof4EkWsRfT_fov0OmLU', 'plus_code': {'compound_code': 'XC9J+PQ Broadbeach, Queensland, Australia', 'global_code': '5R3MXC9J+PQ'}, 'rating': 4, 'reference': 'ChIJawoQof4EkWsRfT_fov0OmLU', 'scope': 'GOOGLE', 'types': ['meal_delivery', 'meal_takeaway', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 163, 'vicinity': 'Shop E116 The Oracle Shopping Centre 3 Oracle Boulevarde, Off Charles Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0291906, 'lng': 153.4308436}, 'viewport': {'northeast': {'lat': -28.0279229697085, 'lng': 153.4322080302915}, 'southwest': {'lat': -28.0306209302915, 'lng': 153.4295100697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '3196450af0827734cb4aa606be9dc3f7a8d8e832', 'name': \"George's Steak & Seafood Restaurant\", 'opening_hours': {'open_now': False}, 'photos': [{'height': 1535, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/105373545462933800197/photos\">George&#39;s Steak &amp; Seafood Restaurant</a>'], 'photo_reference': 'CmRaAAAAi2dzELRoueLII1miF8xWRYPMOLyfEEvKvq2cat5PaRb_ZmRHzX5G0UEkxasVrJIP5tykQlQLrPC1AH3JlJFBV0ceRKwkrb-4fGPV6iAGwfT-rmSVaHwtuZP1i-txmUhCEhC2ef4U-ooK9fYiTUPagfNtGhRBMFibMFN3QbkSOAP4tHIrU_K2TA', 'width': 2048}], 'place_id': 'ChIJd97jXPwEkWsRrBuOcm_y6ks', 'plus_code': {'compound_code': 'XCCJ+88 Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+88'}, 'price_level': 2, 'rating': 4.2, 'reference': 'ChIJd97jXPwEkWsRrBuOcm_y6ks', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 277, 'vicinity': '1/27 Victoria Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0286444, 'lng': 153.4302901}, 'viewport': {'northeast': {'lat': -28.02730566970849, 'lng': 153.4315791302915}, 'southwest': {'lat': -28.0300036302915, 'lng': 153.4288811697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '1e2a22caef07608874a29b0f694b41b9e45370de', 'name': 'Broadbeach Chinese Restaurant', 'opening_hours': {'open_now': False}, 'photos': [{'height': 364, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/103088930398829422271/photos\">Broadbeach Chinese Restaurant</a>'], 'photo_reference': 'CmRaAAAAZ8ibbi8uin2CRMxaNmetQ4bqY-QkESiJuk_fn3w39ITSWwbYQSSQGVMGLFPpADQTIPqssYQ92QP59PeLjdS7Fue84_Q6IcQ2FCjY48-NYA_CuFbMa0sTXVCxp9GHHP0bEhAlN76BwDS3RQYsvgDvZj0nGhRmBC9EIORZ982EolKvIeslz-VIYg', 'width': 954}], 'place_id': 'ChIJc-pqV_wEkWsRrDd2JR33TxE', 'plus_code': {'compound_code': 'XCCJ+G4 Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+G4'}, 'rating': 3.2, 'reference': 'ChIJc-pqV_wEkWsRrDd2JR33TxE', 'scope': 'GOOGLE', 'types': ['meal_delivery', 'meal_takeaway', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 25, 'vicinity': '2711 Gold Coast Highway, Broadbeach'}, {'geometry': {'location': {'lat': -28.0304307, 'lng': 153.4320509}, 'viewport': {'northeast': {'lat': -28.0291292697085, 'lng': 153.4333915802915}, 'southwest': {'lat': -28.0318272302915, 'lng': 153.4306936197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'cf91e35ab427c83d30722fbd13ec51f986229916', 'name': 'Mecca Bah Gold Coast', 'opening_hours': {'open_now': False}, 'photos': [{'height': 462, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/109699337145083958187/photos\">Mecca Bah Gold Coast</a>'], 'photo_reference': 'CmRaAAAAv7cchhwZpc3wxJo1ls854msv6CTJXsMGQq8r3dqmRfJmE26SPwVgZcvND4Klekj-3bVhAXBNbrkFCxlmed2Qdd83K4lS4Had5Jdm6kg7wSkQg2O4p5EpEoBd6so8salwEhALuSegDSrbMMJubdE4RPD2GhQEkkwYlYkUkDXo9V0y0nHSMhu8Ug', 'width': 820}], 'place_id': 'ChIJj1V-mP4EkWsRU2YyGYitJK0', 'plus_code': {'compound_code': 'XC9J+RR Broadbeach, Queensland, Australia', 'global_code': '5R3MXC9J+RR'}, 'price_level': 2, 'rating': 4.1, 'reference': 'ChIJj1V-mP4EkWsRU2YyGYitJK0', 'scope': 'GOOGLE', 'types': ['bar', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 367, 'vicinity': '3 Oracle Boulevard, Broadbeach'}, {'geometry': {'location': {'lat': -28.028903, 'lng': 153.43263}, 'viewport': {'northeast': {'lat': -28.0275956197085, 'lng': 153.4339892802915}, 'southwest': {'lat': -28.0302935802915, 'lng': 153.4312913197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'd9b69f9adbd920c42ceeca511b045fdd1a7632f7', 'name': 'Max Seafood Restaurant', 'opening_hours': {'open_now': False}, 'photos': [{'height': 423, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/111634751777929211103/photos\">Max Seafood Restaurant</a>'], 'photo_reference': 'CmRaAAAAvw5bFi53ZDbpyNXM-xUKzd62pRRXZj1w9V-kS1AzdYFAkTsY4egA4vVEHdXAjAfSwxpLKJy3BQOV3X3nkG3UHRoA4DhihQ0s1o_nvjHRqh_ZGVD51Nr4X1vqrUbuxrDUEhClk5SvPVW4Av0rJnIWRNWUGhTFmhTdUsJnigZ3zTbrJbRiN8GLUw', 'width': 750}], 'place_id': 'ChIJd4TsLvwEkWsRBUBTFvp5qXY', 'plus_code': {'compound_code': 'XCCM+C3 Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCM+C3'}, 'rating': 2.9, 'reference': 'ChIJd4TsLvwEkWsRBUBTFvp5qXY', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 86, 'vicinity': '15 Victoria Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0274401, 'lng': 153.4315423}, 'viewport': {'northeast': {'lat': -28.0260567197085, 'lng': 153.4328770802915}, 'southwest': {'lat': -28.0287546802915, 'lng': 153.4301791197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '2eab181dc77d54066aaea5fa5a9b8313f939f673', 'name': 'Sage Cafe Restaurant & Pizzeria - Function Venue Gold Coast', 'opening_hours': {'open_now': True}, 'photos': [{'height': 941, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/117430131463240368639/photos\">Sage Cafe Restaurant &amp; Pizzeria - Function Venue Gold Coast</a>'], 'photo_reference': 'CmRZAAAAGNEIfYGYH7KViluOlZrWW1VpbnfaBMm7j7ryLsk8nRcVkQTxmlXHHp6C7L8AmN8A8CJmB0_V4m1yBsmRxGZv0DIa0GlcRZurmASX-90kmPGmCJlXA6Pmx_47I3EI3MtBEhBAvVyfTCngdgr77MJc0BedGhSKcLF9XJXEYZ1BgozlDhes1Bgw6A', 'width': 1624}], 'place_id': 'ChIJXwNvuP0EkWsRmY0bbZ8Diw8', 'plus_code': {'compound_code': 'XCFJ+2J Broadbeach, Queensland, Australia', 'global_code': '5R3MXCFJ+2J'}, 'price_level': 2, 'rating': 3.9, 'reference': 'ChIJXwNvuP0EkWsRmY0bbZ8Diw8', 'scope': 'GOOGLE', 'types': ['restaurant', 'cafe', 'bar', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 486, 'vicinity': '5/20 Queensland Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.027597, 'lng': 153.431631}, 'viewport': {'northeast': {'lat': -28.0261318697085, 'lng': 153.4329317302915}, 'southwest': {'lat': -28.0288298302915, 'lng': 153.4302337697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '5ab5d956222992c4724b40f5892ac7a2f305f392', 'name': 'Yellowfin Seafood Restaurant', 'opening_hours': {'open_now': False}, 'photos': [{'height': 1836, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/103889472920090322128/photos\">Kieran Short</a>'], 'photo_reference': 'CmRaAAAAIipzT6qvL1zfYKDBzR2Npny4WmbJonIxvtPkMGyYABjuOLlEcvOu5jVK7THBi9S3ovJzmORSqoNlgYKP8kz2a1o6p-DcPyZISNRpVafilbXOpZ_FVCQbRbC47ICmHiCDEhDxyadG000GBb-cqgqrKd8IGhSq3ARO5jJnhT0puhys5UBKiHo8eg', 'width': 3264}], 'place_id': 'ChIJXwNvuP0EkWsRX7JCrJeu3Ls', 'plus_code': {'compound_code': 'XCCJ+XM Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+XM'}, 'price_level': 3, 'rating': 4.2, 'reference': 'ChIJXwNvuP0EkWsRX7JCrJeu3Ls', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 261, 'vicinity': '6/20 Queensland Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0290121, 'lng': 153.4305143}, 'viewport': {'northeast': {'lat': -28.0276486197085, 'lng': 153.4319482302915}, 'southwest': {'lat': -28.0303465802915, 'lng': 153.4292502697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'b2031156dc574079df15d124ede44ae225cead68', 'name': 'The Peacock Inn Chinese Restaurant', 'opening_hours': {'open_now': False}, 'photos': [{'height': 364, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/100040616009626072963/photos\">The Peacock Inn Chinese Restaurant</a>'], 'photo_reference': 'CmRaAAAAjx9xLZQcv9tVc4oierO3AMAw44_y33v7XSWLGzu5wD4scZUwr6YR7FQqcB8AMqP3JOrhNKOahUxjjIjw0IZXkiFX4SFhRcWbNKwYqNeEHQawajmfTkQLpm7umS5GD0SvEhBrtz0z7VUPaVkfL_KBy0QcGhQa1268cNIQnefOJBB5_Sfci3tTvg', 'width': 954}], 'place_id': 'ChIJHVmGqf0EkWsRBD1UK4E1IHY', 'plus_code': {'compound_code': 'XCCJ+96 Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+96'}, 'rating': 3.8, 'reference': 'ChIJHVmGqf0EkWsRBD1UK4E1IHY', 'scope': 'GOOGLE', 'types': ['meal_takeaway', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 55, 'vicinity': 'Shop1/2705 Gold Coast Highway, Broadbeach'}, {'geometry': {'location': {'lat': -28.0298386, 'lng': 153.4317027}, 'viewport': {'northeast': {'lat': -28.02852246970849, 'lng': 153.4328756302915}, 'southwest': {'lat': -28.0312204302915, 'lng': 153.4301776697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': '7d01d350827b8831823ef152cca212a40450a456', 'name': 'ROOM81', 'opening_hours': {'open_now': False}, 'photos': [{'height': 5504, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/111198154104302474163/photos\">ROOM81</a>'], 'photo_reference': 'CmRaAAAAYTvxD20F5a2qDyGl_ptDp0tirARCQblyVi8im1JqtkeJLR-TCeFKGkCZpvh86PWm_F7kjvjteoVoyER4wMvhvEgTPqYp0uIliIIC69E_jqE5GoF3dQqVXz678B2HOdScEhANEOGtXhceKrVw1TBkAwUfGhSL8HK4cm4gL9rOXJGYIuK0sFonsA', 'width': 8256}], 'place_id': 'ChIJiXdfavwEkWsRyjSC4AO8yAo', 'plus_code': {'compound_code': 'XCCJ+3M Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+3M'}, 'price_level': 2, 'rating': 3.8, 'reference': 'ChIJiXdfavwEkWsRyjSC4AO8yAo', 'scope': 'GOOGLE', 'types': ['restaurant', 'bar', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 57, 'vicinity': '81 Surf Parade, Broadbeach'}, {'geometry': {'location': {'lat': -28.0291003, 'lng': 153.4313884}, 'viewport': {'northeast': {'lat': -28.0278302197085, 'lng': 153.4327515802915}, 'southwest': {'lat': -28.0305281802915, 'lng': 153.4300536197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'db25fd016df0ec1f7af54fc8a6e0ab5ecfc4bde0', 'name': 'Beachouse Grillbar', 'place_id': 'ChIJj-viI_wEkWsRlWspz9dzKM4', 'plus_code': {'compound_code': 'XCCJ+9H Gold Coast, Queensland, Australia', 'global_code': '5R3MXCCJ+9H'}, 'reference': 'ChIJj-viI_wEkWsRlWspz9dzKM4', 'scope': 'GOOGLE', 'types': ['bar', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'vicinity': 'Australia'}, {'geometry': {'location': {'lat': -28.0291906, 'lng': 153.4306194}, 'viewport': {'northeast': {'lat': -28.0279377197085, 'lng': 153.4319823802915}, 'southwest': {'lat': -28.0306356802915, 'lng': 153.4292844197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'de33d903019a86c0a98a66aeb23f2fa4a46f4e9e', 'name': 'Valentinos', 'opening_hours': {'open_now': False}, 'photos': [{'height': 3000, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/107359664836727328883/photos\">Karen R</a>'], 'photo_reference': 'CmRaAAAAf7bqnQroVMs2_Fu40ovLJoL8eOxwvUxephV7vCKiZPIT76jxDJ2un4PfoKCJzDGY_jAsiYmRoiGehO6PmhE8IF4lTgvgOWzAoxnhRMv8TiOqDj7vkEOHNRsSC8wQ3nOzEhC2ThbfqXEkjSFYIxzd44sGGhQn8EYSu9CFmwrgjoC3zvqK0UI9og', 'width': 4669}], 'place_id': 'ChIJEc32XfwEkWsRAGsf1NC5XBo', 'plus_code': {'compound_code': 'XCCJ+86 Gold Coast, Queensland, Australia', 'global_code': '5R3MXCCJ+86'}, 'price_level': 2, 'rating': 4, 'reference': 'ChIJEc32XfwEkWsRAGsf1NC5XBo', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 345, 'vicinity': '29a Victoria Avenue, Broadbeach'}, {'geometry': {'location': {'lat': -28.0280313, 'lng': 153.4310832}, 'viewport': {'northeast': {'lat': -28.0266879697085, 'lng': 153.4324972802915}, 'southwest': {'lat': -28.0293859302915, 'lng': 153.4297993197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'e3371fd88a140a67a15d1cf4a9991803637f5a46', 'name': 'La Porchetta Broadbeach', 'opening_hours': {'open_now': False}, 'photos': [{'height': 3024, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/117339774417544913953/photos\">Gavin Chan</a>'], 'photo_reference': 'CmRaAAAA9iiYlkpMP0pg4Em3GkneCI2paEyM6zkvLQL9C1P9usGgZBl_wzIjBAjqWKvi4entvq7HJDuf-VYNvYKzwH7HONST0ci7-QDtvVV7dtnCSdHIMpuZ2vGjKqUFs3OxHGgYEhC6Tf40ULybRCgo7EUjyDVIGhR5Ean9mBWpOKjb_LMmucOmpI1KhA', 'width': 4032}], 'place_id': 'ChIJw5miBPoEkWsR7V_REPjldQI', 'plus_code': {'compound_code': 'XCCJ+QC Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+QC'}, 'price_level': 2, 'rating': 3.8, 'reference': 'ChIJw5miBPoEkWsR7V_REPjldQI', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 136, 'vicinity': 'Shop 3, The Phoenician Resort 110 Surf Parade Broadbeach QLD 4218 AU, 110 Surf Parade, Broadbeach'}, {'geometry': {'location': {'lat': -28.023547, 'lng': 153.4291191}, 'viewport': {'northeast': {'lat': -28.02199021970849, 'lng': 153.4305549802915}, 'southwest': {'lat': -28.0246881802915, 'lng': 153.4278570197085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'f29efe2f5d5d72471f4515dd196d420700302e1a', 'name': 'Donto Sapporo', 'opening_hours': {'open_now': False}, 'photos': [{'height': 1440, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/113006482404669765615/photos\">Peter ElectricianNorthLakes</a>'], 'photo_reference': 'CmRaAAAAzbxTsieLs04oG-w7wflbM8qI8i4K6HF2V-rWz-T3-ei_tpzCTajP8A5XDfpRlcPesV2ePAhWtb_qsy1X_nESq-Y1FPaDoolTseRsdsEcpTjcq4QHzkSnIVt_6Lz5blywEhDEt_lUVhauXzJbfilTtouTGhTYT7BnvAm3f27yS6_MXiONYiJx6A', 'width': 2560}], 'place_id': 'ChIJSdWP7AIFkWsRChmW7D_GcbU', 'plus_code': {'compound_code': 'XCGH+HJ Broadbeach, Queensland, Australia', 'global_code': '5R3MXCGH+HJ'}, 'price_level': 2, 'rating': 4.3, 'reference': 'ChIJSdWP7AIFkWsRChmW7D_GcbU', 'scope': 'GOOGLE', 'types': ['restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 232, 'vicinity': '2763 Gold Coast Highway, Broadbeach'}, {'geometry': {'location': {'lat': -28.0284689, 'lng': 153.4313713}, 'viewport': {'northeast': {'lat': -28.0271138697085, 'lng': 153.4326241302915}, 'southwest': {'lat': -28.0298118302915, 'lng': 153.4299261697085}}}, 'icon': 'https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png', 'id': 'e0c96eb5754da3a61f18db7ee9252d7ad8fab25c', 'name': 'Koi Dining + Lounge Bar Broadbeach', 'opening_hours': {'open_now': True}, 'photos': [{'height': 1153, 'html_attributions': ['<a href=\"https://maps.google.com/maps/contrib/105337453378715231940/photos\">Koi Dining + Lounge Bar Broadbeach</a>'], 'photo_reference': 'CmRaAAAAAdbykn9BelPSEbh_4_X1HCp5BtCvxVcRauZbjPt7_5dN1cQ-2DfF7w5KhhxGEv4lbiqoam1l2sMQpsjCjFYQZKlqzXzLa1ERgy3M9G0IqF6sxlE7wxhIpbg3zoL9F9RzEhCFBsoGMDUcRa_C5BeGHSP3GhR-tZGmKzj-WSPRf4TcTI8eP7ppmg', 'width': 2048}], 'place_id': 'ChIJ-32LTPwEkWsR24Npgtroznk', 'plus_code': {'compound_code': 'XCCJ+JG Broadbeach, Queensland, Australia', 'global_code': '5R3MXCCJ+JG'}, 'price_level': 2, 'rating': 4.3, 'reference': 'ChIJ-32LTPwEkWsR24Npgtroznk', 'scope': 'GOOGLE', 'types': ['bar', 'restaurant', 'point_of_interest', 'food', 'establishment'], 'user_ratings_total': 363, 'vicinity': 'Under The Wave Resort, 93/89 Surf Parade, Broadbeach'}], 'status': 'OK'}\n"
+     ]
+    }
+   ],
+   "source": [
+    "payload = {'location': str(lat) + \",\" + str(lng), 'radius': 500, 'type': 'restaurant', 'key': apiKey} #parameters\n",
+    "url = \"https://maps.googleapis.com/maps/api/place/nearbysearch/json?\" #Base API Url\n",
+    "\n",
+    "output = requests.get(url, payload)#Get the information from the API\n",
+    "output = output.json()#Turn .json oputput into Python dictionary\n",
+    "print(output)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Take data from output .json file into a dataframe and sort"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 94,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>name</th>\n",
+       "      <th>address</th>\n",
+       "      <th>rating</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>Koi Dining + Lounge Bar Broadbeach</td>\n",
+       "      <td>Under The Wave Resort, 93/89 Surf Parade, Broa...</td>\n",
+       "      <td>4.3</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>Donto Sapporo</td>\n",
+       "      <td>2763 Gold Coast Highway, Broadbeach</td>\n",
+       "      <td>4.3</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>George's Steak &amp; Seafood Restaurant</td>\n",
+       "      <td>1/27 Victoria Avenue, Broadbeach</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>Yellowfin Seafood Restaurant</td>\n",
+       "      <td>6/20 Queensland Avenue, Broadbeach</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Moo Moo The Wine Bar + Grill</td>\n",
+       "      <td>Broadbeach on the Park, 2685 Gold Coast Highwa...</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>The Star Gold Coast</td>\n",
+       "      <td>1 Casino Drive, Broadbeach</td>\n",
+       "      <td>4.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>Mecca Bah Gold Coast</td>\n",
+       "      <td>3 Oracle Boulevard, Broadbeach</td>\n",
+       "      <td>4.1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Guzman y Gomez</td>\n",
+       "      <td>Shop E116 The Oracle Shopping Centre 3 Oracle ...</td>\n",
+       "      <td>4.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>Valentinos</td>\n",
+       "      <td>29a Victoria Avenue, Broadbeach</td>\n",
+       "      <td>4.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>Sage Cafe Restaurant &amp; Pizzeria - Function Ven...</td>\n",
+       "      <td>5/20 Queensland Avenue, Broadbeach</td>\n",
+       "      <td>3.9</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>The Peacock Inn Chinese Restaurant</td>\n",
+       "      <td>Shop1/2705 Gold Coast Highway, Broadbeach</td>\n",
+       "      <td>3.8</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>ROOM81</td>\n",
+       "      <td>81 Surf Parade, Broadbeach</td>\n",
+       "      <td>3.8</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>La Porchetta Broadbeach</td>\n",
+       "      <td>Shop 3, The Phoenician Resort 110 Surf Parade ...</td>\n",
+       "      <td>3.8</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1two3 Mediterranean Dining &amp; Lounge Bar</td>\n",
+       "      <td>Shop 10 &amp; 11 Phoenician Tower East Surf Pde, B...</td>\n",
+       "      <td>3.6</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Broadbeach Chinese Restaurant</td>\n",
+       "      <td>2711 Gold Coast Highway, Broadbeach</td>\n",
+       "      <td>3.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>The Aztec Broadbeach</td>\n",
+       "      <td>The Aria Building, shop 11/17 Albert Avenue, B...</td>\n",
+       "      <td>3.2</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Rocks on Broadbeach</td>\n",
+       "      <td>110/89 Surf Parade, Broadbeach</td>\n",
+       "      <td>2.9</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>Max Seafood Restaurant</td>\n",
+       "      <td>15 Victoria Avenue, Broadbeach</td>\n",
+       "      <td>2.9</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Ariya Thai Cuisine</td>\n",
+       "      <td>17B Albert Avenue, Broadbeach</td>\n",
+       "      <td>2.8</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>Beachouse Grillbar</td>\n",
+       "      <td>Australia</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                                                 name  \\\n",
+       "19                 Koi Dining + Lounge Bar Broadbeach   \n",
+       "18                                      Donto Sapporo   \n",
+       "7                 George's Steak & Seafood Restaurant   \n",
+       "12                       Yellowfin Seafood Restaurant   \n",
+       "1                        Moo Moo The Wine Bar + Grill   \n",
+       "0                                 The Star Gold Coast   \n",
+       "9                                Mecca Bah Gold Coast   \n",
+       "6                                      Guzman y Gomez   \n",
+       "16                                         Valentinos   \n",
+       "11  Sage Cafe Restaurant & Pizzeria - Function Ven...   \n",
+       "13                 The Peacock Inn Chinese Restaurant   \n",
+       "14                                             ROOM81   \n",
+       "17                            La Porchetta Broadbeach   \n",
+       "2             1two3 Mediterranean Dining & Lounge Bar   \n",
+       "8                       Broadbeach Chinese Restaurant   \n",
+       "4                                The Aztec Broadbeach   \n",
+       "5                                 Rocks on Broadbeach   \n",
+       "10                             Max Seafood Restaurant   \n",
+       "3                                  Ariya Thai Cuisine   \n",
+       "15                                 Beachouse Grillbar   \n",
+       "\n",
+       "                                              address  rating  \n",
+       "19  Under The Wave Resort, 93/89 Surf Parade, Broa...     4.3  \n",
+       "18                2763 Gold Coast Highway, Broadbeach     4.3  \n",
+       "7                    1/27 Victoria Avenue, Broadbeach     4.2  \n",
+       "12                 6/20 Queensland Avenue, Broadbeach     4.2  \n",
+       "1   Broadbeach on the Park, 2685 Gold Coast Highwa...     4.2  \n",
+       "0                          1 Casino Drive, Broadbeach     4.2  \n",
+       "9                      3 Oracle Boulevard, Broadbeach     4.1  \n",
+       "6   Shop E116 The Oracle Shopping Centre 3 Oracle ...     4.0  \n",
+       "16                    29a Victoria Avenue, Broadbeach     4.0  \n",
+       "11                 5/20 Queensland Avenue, Broadbeach     3.9  \n",
+       "13          Shop1/2705 Gold Coast Highway, Broadbeach     3.8  \n",
+       "14                         81 Surf Parade, Broadbeach     3.8  \n",
+       "17  Shop 3, The Phoenician Resort 110 Surf Parade ...     3.8  \n",
+       "2   Shop 10 & 11 Phoenician Tower East Surf Pde, B...     3.6  \n",
+       "8                 2711 Gold Coast Highway, Broadbeach     3.2  \n",
+       "4   The Aria Building, shop 11/17 Albert Avenue, B...     3.2  \n",
+       "5                      110/89 Surf Parade, Broadbeach     2.9  \n",
+       "10                     15 Victoria Avenue, Broadbeach     2.9  \n",
+       "3                       17B Albert Avenue, Broadbeach     2.8  \n",
+       "15                                          Australia     NaN  "
+      ]
+     },
+     "execution_count": 94,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df = pd.DataFrame(columns=['name', 'address', 'rating'])#Create empty dataframe to fill with information\n",
+    "\n",
+    "for i in range(0,len(output['results'])): #for each result returned by the query\n",
+    "\n",
+    "    #extract the different bits from the api request output\n",
+    "    try:\n",
+    "        name = output['results'][i]['name']\n",
+    "    except:\n",
+    "        name = None\n",
+    "    try:\n",
+    "        address = output['results'][i]['vicinity']\n",
+    "    except:\n",
+    "        address = None\n",
+    "    try:\n",
+    "        rating = output['results'][i]['rating']\n",
+    "    except:\n",
+    "        rating = None\n",
+    "        \n",
+    "    row = [name, address, rating]\n",
+    "    \n",
+    "    df.loc[i] = row #add new row to dataframe\n",
+    "    \n",
+    "df = df.sort_values('rating', ascending = False) #sort listings by ratings\n",
+    "df"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Here you can see the output"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Open Street Map (public API)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "graph = ox.graph_from_address(address)\n",
+    "type(graph)\n",
+    "fig, ax = ox.plot_graph(graph)\n",
+    "\n",
+    "plt.tight_layout()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "distance = 500\n",
+    "gdf = ox.footprints.footprints_from_address(address, distance, footprint_type='building', retain_invalid=False)\n",
+    "gdf.plot()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.1"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
